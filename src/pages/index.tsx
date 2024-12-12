@@ -15,6 +15,13 @@ const rssFeeds = [
   { name: 'Tax', url: 'https://tax.cyrilamarchandblogs.com/feed/' },
 ];
 
+const selectFeeds = [
+  { name: 'RBI', value: 'RBI' },
+  { name: 'SEBI', value: 'SEBI' },
+  { name: 'Services India', value: 'Services India' },
+  { name: 'Tax', value: 'Tax' },
+];
+
 export default function Home() {
   const [timeRange, setTimeRange] = useState('24h');
   const [alerts, setAlerts] = useState([]);
@@ -39,6 +46,9 @@ export default function Home() {
   // Handle filtering based on selected sources
   const filteredAlerts = alerts.filter((alert) => {
     if (selectedSources.length === 0) return true; // No filter applied
+    if(selectedSources.includes('RBI')) {
+      return alert.source?.includes('RBI')
+    }
     return selectedSources.includes(alert.source);
   });
 
@@ -65,7 +75,7 @@ export default function Home() {
             onChange={(value) => setSelectedSources(value)}
             value={selectedSources}
           >
-            {rssFeeds.map((feed) => (
+            {selectFeeds.map((feed) => (
               <Option key={feed.name} value={feed.name}>
                 {feed.name}
               </Option>
