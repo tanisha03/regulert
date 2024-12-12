@@ -1,7 +1,7 @@
 import { stringify } from "querystring";
 
 // export const API_BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api`;
-export const API_BASE_URL = `http://localhost:8000`;
+export const API_BASE_URL = `https://regulator-rss-node.onrender.com`;
 
 export const getApiUrl = (endpoint: string) => API_BASE_URL + endpoint;
 
