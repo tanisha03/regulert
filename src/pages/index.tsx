@@ -6,20 +6,12 @@ import { fetchAlertsFromAPI } from '@/utils/http';
 const { Header, Content } = Layout;
 const { Option } = Select;
 
-const rssFeeds = [
-  { name: 'RBI Press Releases', url: 'https://rbi.org.in/pressreleases_rss.xml' },
-  { name: 'RBI Press Notifications', url: 'https://rbi.org.in/notifications_rss.xml' },
-  { name: 'RBI Press Publications', url: 'https://rbi.org.in/Publication_rss.xml' },
-  { name: 'SEBI', url: 'https://www.sebi.gov.in/sebirss.xml' },
-  { name: 'Services India', url: 'https://services.india.gov.in/feed/rss?cat_id=10&ln=en' },
-  { name: 'Tax', url: 'https://tax.cyrilamarchandblogs.com/feed/' },
-];
-
 const selectFeeds = [
   { name: 'RBI', value: 'RBI' },
   { name: 'SEBI', value: 'SEBI' },
   { name: 'Services India', value: 'Services India' },
   { name: 'Tax', value: 'Tax' },
+  { name: 'MCA', value: 'MCA' },
 ];
 
 export default function Home() {
