@@ -22,8 +22,8 @@ export default function Home() {
 
   const fetchAlerts = async () => {
     setLoading(true);
-    const data = await fetchAlertsFromAPI(timeRange);
-    if (data?.alerts?.length) {
+    const data = await fetchAlertsFromAPI();
+    if (data?.data?.length) {
       setAlerts(data?.alerts);
     } else {
       console.error('Error fetching alerts:', error);

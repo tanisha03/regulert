@@ -41,8 +41,8 @@ export const httpWrapper = ({
   });
 };
 
-export const fetchAlertsFromAPI = async (timeRange: any) => {
-  const url = getApiUrl(`/fetch-alerts?timeRange=${timeRange}`);
+export const fetchAlertsFromAPI = async () => {
+  const url = getApiUrl(`/api/get-notifications`);
 //   const url = getApiUrl(`/fetch-alerts`);
   const method = 'GET';
   return httpWrapper({
