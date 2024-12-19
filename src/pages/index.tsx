@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Layout, Button, Select, List, Spin } from 'antd';
+import { Layout, Select, List, Spin, DatePicker } from 'antd';
 import { fetchAlertsFromAPI } from '@/utils/http';
 
 const { Header, Content } = Layout;
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 const selectFeeds = [
   { name: 'RBI', value: 'RBI' },
@@ -15,17 +15,22 @@ const selectFeeds = [
 ];
 
 export default function Home() {
-  const [timeRange, setTimeRange] = useState('24h');
   const [alerts, setAlerts] = useState([]);
+  const [filteredAlerts, setFilteredAlerts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedSources, setSelectedSources] = useState([]);
+  const [dateRange, setDateRange] = useState([null, null]);
 
   const fetchAlerts = async () => {
     setLoading(true);
-    const data = await fetchAlertsFromAPI();
-    if (data?.data?.length) {
-      setAlerts(data?.alerts);
-    } else {
+    try {
+      const { data } = await fetchAlertsFromAPI();
+      if (data?.length) {
+        setAlerts(data);
+      } else {
+        console.error('Error fetching alerts');
+      }
+    } catch (error) {
       console.error('Error fetching alerts:', error);
     }
     setLoading(false);
@@ -33,16 +38,33 @@ export default function Home() {
 
   useEffect(() => {
     fetchAlerts();
-  }, [timeRange]);
+  }, []);
 
-  // Handle filtering based on selected sources
-  const filteredAlerts = alerts.filter((alert) => {
-    if (selectedSources.length === 0) return true; // No filter applied
-    if(selectedSources.includes('RBI')) {
-      return alert.source?.includes('RBI')
+  // useEffect to filter alerts based on selected sources and date range
+  useEffect(() => {
+    const filterAlerts = () => {
+      const filtered = alerts.filter((alert) => {
+        // Filter based on date range
+        const pubDate = new Date(alert.pubDate).getTime();
+
+        const isInDateRange =
+        (dateRange?.[0] && dateRange?.[1]) ? (pubDate >= new Date(dateRange[0].startOf('day')).getTime() && pubDate <= new Date(dateRange[1].endOf('day')).getTime()) : true;
+
+        // Filter based on selected sources
+        const isInSelectedSources =
+          selectedSources.length === 0 || selectedSources.includes(alert.source);
+
+        return isInDateRange && isInSelectedSources;
+      }).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+      setFilteredAlerts(filtered);
+    };
+
+    // Only filter if alerts are available and selectedFilters have changed
+    if (alerts.length) {
+      filterAlerts();
     }
-    return selectedSources.includes(alert.source);
-  });
+  }, [alerts, selectedSources, dateRange]); // Dependency array includes alerts, selectedSources, and dateRange
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -51,15 +73,14 @@ export default function Home() {
       </Header>
       <Content style={{ padding: '0 50px 50px 50px', marginTop: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20, gap: 20 }}>
-          <Select
-            defaultValue={timeRange}
-            onChange={(value) => setTimeRange(value)}
-            style={{ width: 200 }}
-          >
-            <Option value="6h">Last 6 hours</Option>
-            <Option value="12h">Last 12 hours</Option>
-            <Option value="24h">Last 24 hours</Option>
-          </Select>
+          {/* Date Range Picker */}
+          <RangePicker
+            style={{ width: 300 }}
+            onChange={(dates) => setDateRange(dates)}
+            format="YYYY-MM-DD"
+          />
+
+          {/* Filter by source */}
           <Select
             mode="multiple"
             placeholder="Filter by source"
@@ -85,16 +106,14 @@ export default function Home() {
                   title={
                     <div>
                       <a href={item.link}>{item.title}</a>
-                      <div style={{ fontWeight: 'normal' }}>{item.pubDate}</div> {/* Make date non-bold */}
+                      <div style={{ fontWeight: 'normal' }}>{new Date(item.pubDate)?.toDateString()}</div> {/* Make date non-bold */}
                     </div>
                   }
                   description={
                     <div>
                       <div style={{ margin: '8px 0', color: '#888' }}>
-                        {/* Assuming item.regulator is where the regulator info is stored */}
                         <strong>Regulator: </strong>{item.source || 'N/A'}
                       </div>
-                      {/* Trim the content snippet */}
                       {item.contentSnippet
                         ? item.contentSnippet.length > 800
                           ? item.contentSnippet.substring(0, 800) + '...'
