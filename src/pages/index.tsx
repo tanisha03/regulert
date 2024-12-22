@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Layout, Select, List, Spin, DatePicker, Input } from 'antd';
+import { Layout, Select, List, Spin, DatePicker, Input, Row, Col } from 'antd';
 import { fetchAlertsFromAPI } from '@/utils/http';
 
 const { Header, Content } = Layout;
@@ -82,31 +82,45 @@ export default function Home() {
         <h1 style={{ textAlign: 'center' }}>RegTech Alerts Dashboard</h1>
       </Header>
       <Content style={{ padding: '0 50px 50px 50px', marginTop: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20, gap: 20 }}>
+      <div className="header-content" style={{ width: '100%' }}>
+        <Row gutter={[16, 16]} justify="center" align="middle">
           {/* Date Range Picker */}
-          <RangePicker
-            style={{ width: 300 }}
-            onChange={(dates) => setDateRange(dates)}
-            format="YYYY-MM-DD"
-          />
+          <Col xs={24} sm={12} md={8}>
+            <RangePicker
+              style={{ width: '100%' }}
+              onChange={(dates) => setDateRange(dates)}
+              format="YYYY-MM-DD"
+            />
+          </Col>
 
           {/* Filter by source */}
-          <Select
-            mode="multiple"
-            placeholder="Filter by source"
-            style={{ width: 400 }}
-            onChange={(value) => setSelectedSources(value)}
-            value={selectedSources}
-          >
-            {selectFeeds.map((feed) => (
-              <Option key={feed.name} value={feed.name}>
-                {feed.name}
-              </Option>
-            ))}
-          </Select>
+          <Col xs={24} sm={12} md={8}>
+            <Select
+              mode="multiple"
+              placeholder="Filter by source"
+              style={{ width: '100%' }}
+              onChange={(value) => setSelectedSources(value)}
+              value={selectedSources}
+            >
+              {selectFeeds.map((feed) => (
+                <Option key={feed.name} value={feed.name}>
+                  {feed.name}
+                </Option>
+              ))}
+            </Select>
+          </Col>
 
-          <Input onChange={(e) => setTitleFilter(e.target.value)} placeholder='Search..'/>
-        </div>
+          {/* Search Input */}
+          <Col xs={24} sm={12} md={8}>
+            <Input
+              onChange={(e) => setTitleFilter(e.target.value)}
+              placeholder="Search..."
+              style={{ width: '100%' }}
+            />
+          </Col>
+        </Row>
+      </div>
+
 
         <Spin spinning={loading} size="large">
           <List
