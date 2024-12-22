@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Layout, Select, List, Spin, DatePicker } from 'antd';
+import { Layout, Select, List, Spin, DatePicker, Input } from 'antd';
 import { fetchAlertsFromAPI } from '@/utils/http';
 
 const { Header, Content } = Layout;
@@ -12,6 +12,13 @@ const selectFeeds = [
   { name: 'Services India', value: 'Services India' },
   { name: 'Tax', value: 'Tax' },
   { name: 'MCA', value: 'MCA' },
+  { name: 'ITR', value: 'ITR' },
+  { name: 'BSE', value: 'BSE' },
+  { name: 'FSSAI', value: 'FSSAI' },
+  { name: 'Directorate of Enforcement', value: 'Directorate of Enforcement' },
+  { name: 'Central Board Of Indirect Taxes & Customs', value: 'Central Board Of Indirect Taxes & Customs' },
+  { name: 'DGFT', value: 'DGFT' },
+  { name: 'CBDT', value: 'CBDT' },
 ];
 
 export default function Home() {
@@ -20,6 +27,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [selectedSources, setSelectedSources] = useState([]);
   const [dateRange, setDateRange] = useState([null, null]);
+  const [titleFilter, setTitleFilter] = useState('');
 
   const fetchAlerts = async () => {
     setLoading(true);
@@ -54,7 +62,9 @@ export default function Home() {
         const isInSelectedSources =
           selectedSources.length === 0 || selectedSources.includes(alert.source);
 
-        return isInDateRange && isInSelectedSources;
+        const titleFilterCheck = titleFilter?.length ? alert?.title?.toLowerCase()?.includes(titleFilter?.toLowerCase()) || alert?.contentSnippet?.toLowerCase()?.includes(titleFilter?.toLowerCase()) : true;
+
+        return isInDateRange && isInSelectedSources && titleFilterCheck;
       }).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
       setFilteredAlerts(filtered);
@@ -64,7 +74,7 @@ export default function Home() {
     if (alerts.length) {
       filterAlerts();
     }
-  }, [alerts, selectedSources, dateRange]); // Dependency array includes alerts, selectedSources, and dateRange
+  }, [alerts, selectedSources, dateRange, titleFilter]); // Dependency array includes alerts, selectedSources, and dateRange
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -94,6 +104,8 @@ export default function Home() {
               </Option>
             ))}
           </Select>
+
+          <Input onChange={(e) => setTitleFilter(e.target.value)} placeholder='Search..'/>
         </div>
 
         <Spin spinning={loading} size="large">
